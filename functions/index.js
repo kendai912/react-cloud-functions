@@ -2,6 +2,7 @@ const functions = require("firebase-functions");
 const express = require("express");
 const requestPromise = require("request-promise-native");
 const cors = require("cors");
+const axios = require("axios").default;
 
 // local
 // http://localhost:5000/react-cloud-functions-b412b/us-central1/
@@ -42,6 +43,27 @@ app.get("/user/:userId", (req, res) => {
 app.get("/gbooks/:keyword", cors(), async (req, res) => {
   const response = await getDataFromApi(req.params.keyword);
   res.send(response);
+});
+
+app.get("/weather/forecast/:zip", cors(), async (req, res) => {
+  const options = {
+    method: "GET",
+    url: "https://community-open-weather-map.p.rapidapi.com/forecast",
+    params: { zip: req.params.zip + ",JP" },
+    headers: {
+      "x-rapidapi-key": "0babf9ac9bmsh1c7c5db9c8b4c8ap188288jsn9dde1990a91f",
+      "x-rapidapi-host": "community-open-weather-map.p.rapidapi.com",
+    },
+  };
+
+  axios
+    .request(options)
+    .then(function (response) {
+      res.send(response.data);
+    })
+    .catch(function (error) {
+      console.error(error);
+    });
 });
 
 const api = functions.https.onRequest(app);
